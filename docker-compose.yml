@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/webfounder
+      SPRING_DATASOURCE_USERNAME: webfounder_user
+      SPRING_DATASOURCE_PASSWORD: webfounder1234
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
+
+      # SMTP 설정 추가
+      SPRING_MAIL_HOST: smtp.gmail.com
+      SPRING_MAIL_PORT: 587
+      SPRING_MAIL_USERNAME: sookmyung@likelion.org
+      SPRING_MAIL_PASSWORD: hpgkklwzuirytnyg
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: "true"
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: "true"
+
+      # Google Docs API 환경변수 추가
+      GOOGLE_DOCS_DOCUMENT_ID: 1fovWBfWAWTdzvt3ixZlQunW0WSsLrrvTuJcDJ3Znaas
+
+    networks:
+      - recruit-backend-network
+
+  db:
+    image: mysql:8.0
+    container_name: mysql-container
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: webfounder
+      MYSQL_USER: webfounder_user
+      MYSQL_PASSWORD: webfounder1234
+    networks:
+      - recruit-backend-network
+
+networks:
+  recruit-backend-network:
+    driver: bridge
