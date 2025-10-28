@@ -1,0 +1,70 @@
+spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+    properties:
+      hibernate:
+        show_sql: true
+        use_sql_comments: true
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/webfounder?serverTimezone=Asia/Seoul
+    #          url: jdbc:mysql://localhost:3306/webfounder
+    #db 연결 -> rds
+    #url: jdbc:mysql://webfounder.cdcmskceihxl.ap-northeast-2.rds.amazonaws.com:3306/webfounder?serverTimezone=Asia/Seoul
+
+    # 각자 환경에서 로컬 mysql 접속하는 username, password 입력해서 돌리기 (환경변수에 입력)
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: sookmyung@likelion.org
+    password: hpgkklwzuirytnyg
+    properties:
+      mail:
+        smtp:
+          auth: true
+          timeout: 5000
+          starttls:
+            enable: true
+
+  spring:
+    datasource:
+      hikari:
+        maximum-pool-size: 10
+        minimum-idle: 2
+        idle-timeout: 30000
+        max-lifetime: 1800000
+        connection-timeout: 30000
+    jpa:
+      database-platform: org.hibernate.dialect.MySQL8Dialect
+    jackson:
+      time-zone: Asia/Seoul
+
+logging:
+  file:
+    path: /home/ubuntu/
+  level:
+    org.hibernate.SQL: debug
+
+
+
+
+secret:
+  jwt: ${JWT_SECRET}
+
+google:
+  docs:
+    credentials: classpath:credentials.json
+    application-name: Recruitment System
+    scope: https://www.googleapis.com/auth/documents
+    document-id: ${GOOGLE_DOCS_DOCUMENT_ID}
