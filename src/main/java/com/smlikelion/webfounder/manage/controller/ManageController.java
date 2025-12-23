@@ -192,5 +192,20 @@ public class ManageController {
         );
     }
 
+    @Operation(summary = "지원서류 임시 휴지통으로 보내기")
+    @GetMapping("/apply/docs/stash")
+    public BaseResponse<ApplicationStatusResponse> getStashedDocs(
+            @Auth AuthInfo authInfo,
+            @RequestParam(value="track", required=false, defaultValue="ALL") String track,
+            @RequestParam(value="page", required = false, defaultValue = "0") int page,
+            @RequestParam(value="size", required = false, defaultValue = "10") int size) {
+        if( page < 0 || size <= 0) {
+            page = 0;
+            size = 10;
+        }
+        Pageable pageable = PageRequest.of(page, size);
+        return new BaseResponse<>(manageService.getStashApplications(authInfo, track, pageable));
+    }
+
 
 }
