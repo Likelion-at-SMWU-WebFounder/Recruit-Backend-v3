@@ -511,4 +511,30 @@ public class ManageService {
                 .build();
     }
 
+    public ApplicationStatusResponse getStashApplications(AuthInfo authInfo, String track, Pageable pageable) {
+        if (!hasValidRoles(authInfo, List.of(Role.SUPERUSER, Role.MANAGER))) {
+            throw new UnauthorizedRoleException("접근 권한이 없습니다.");
+        }
+
+        Track requestedTrack = validateTrackName(track);
+        Page<Joiner> joinerPage;
+
+        if(requestedTrack.equals(Track.ALL)){
+            joinerPage = joinerRepository.findAllByStashedTrueOrderByCreatedAtAsc(pageable);
+        } else{
+            joinerPage = joinerRepository.findAllByTrackAndStashedTrueOrderByCreatedAtAsc(requestedTrack, pageable);
+        }
+
+        List<ApplicationDocumentPreview> applicationDocumentPreviewList = joinerPage.getContent().stream()
+                .map(this::mapJoinerToApplicationDocumentPreview)
+                .collect(Collectors.toList());
+
+        return ApplicationStatusResponse.builder()
+                .applicationStatusByTrack(null)
+                .applicationDocumentPreviewList(applicationDocumentPreviewList)
+                .currentPage(joinerPage.getNumber())
+                .totalPages(joinerPage.getTotalPages())
+                .build();
+    }
+
 }
