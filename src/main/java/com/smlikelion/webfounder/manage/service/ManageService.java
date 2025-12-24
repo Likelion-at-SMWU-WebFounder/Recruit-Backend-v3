@@ -24,6 +24,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
@@ -468,6 +469,71 @@ public class ManageService {
                 .studentID(joiner.getStudentId())
                 .track(joiner.getTrack().getTrackName())
                 .submissionTime(joiner.getCreatedAt().format(formatter))
+                .build();
+    }
+
+    @Transactional
+    public StashDocsResponse stashDocs(AuthInfo authInfo, List<Long> joinerIds){
+        if(!hasValidRoles(authInfo, List.of(Role.SUPERUSER, Role.MANAGER))) {
+            throw new UnauthorizedRoleException("접근 권한이 없습니다.");
+        }
+
+        if (joinerIds == null || joinerIds.isEmpty()) {
+            return StashDocsResponse.builder()
+                    .requested(0)
+                    .stashed(0)
+                    .failed(List.of())
+                    .build();
+        }
+
+        int requested = joinerIds.size();
+        int stashed = 0;
+        List<Long> failed = new ArrayList<>();
+
+        for(Long joinerId : joinerIds){
+            try{
+                Joiner joiner = joinerRepository.findById(joinerId)
+                        .orElseThrow(() -> new NotFoundJoinerException("해당 ID의 Joiner를 찾을 수 없습니다."));
+
+                joiner.setStashed(true);
+                joinerRepository.save(joiner);
+                stashed++;
+
+            } catch (Exception e) {
+                failed.add(joinerId);
+            }
+        }
+
+        return StashDocsResponse.builder()
+                .requested(requested)
+                .stashed(stashed)
+                .failed(failed)
+                .build();
+    }
+
+    public ApplicationStatusResponse getStashApplications(AuthInfo authInfo, String track, Pageable pageable) {
+        if (!hasValidRoles(authInfo, List.of(Role.SUPERUSER, Role.MANAGER))) {
+            throw new UnauthorizedRoleException("접근 권한이 없습니다.");
+        }
+
+        Track requestedTrack = validateTrackName(track);
+        Page<Joiner> joinerPage;
+
+        if(requestedTrack.equals(Track.ALL)){
+            joinerPage = joinerRepository.findAllByStashedTrueOrderByCreatedAtAsc(pageable);
+        } else{
+            joinerPage = joinerRepository.findAllByTrackAndStashedTrueOrderByCreatedAtAsc(requestedTrack, pageable);
+        }
+
+        List<ApplicationDocumentPreview> applicationDocumentPreviewList = joinerPage.getContent().stream()
+                .map(this::mapJoinerToApplicationDocumentPreview)
+                .collect(Collectors.toList());
+
+        return ApplicationStatusResponse.builder()
+                .applicationStatusByTrack(null)
+                .applicationDocumentPreviewList(applicationDocumentPreviewList)
+                .currentPage(joinerPage.getNumber())
+                .totalPages(joinerPage.getTotalPages())
                 .build();
     }
 
