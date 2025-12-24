@@ -18,5 +18,9 @@ public interface JoinerRepository extends JpaRepository<Joiner, Long> {
 
     boolean existsByStudentId(String studentId);
 
+    Page<Joiner> findAllByStashedTrueOrderByCreatedAtAsc(Pageable pageable);
+    Page<Joiner> findAllByTrackAndStashedTrueOrderByCreatedAtAsc(Track track, Pageable pageable);
+
+
 
 }
