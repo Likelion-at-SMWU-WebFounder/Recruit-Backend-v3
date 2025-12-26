@@ -537,4 +537,42 @@ public class ManageService {
                 .build();
     }
 
+    @Transactional
+    public StashDocsResponse restoreDocs(AuthInfo authInfo, List<Long> joinerIds){
+        if(!hasValidRoles(authInfo, List.of(Role.SUPERUSER, Role.MANAGER))) {
+            throw new UnauthorizedRoleException("접근 권한이 없습니다.");
+        }
+
+        if (joinerIds == null || joinerIds.isEmpty()) {
+            return StashDocsResponse.builder()
+                    .requested(0)
+                    .stashed(0)
+                    .failed(List.of())
+                    .build();
+        }
+
+        int requested = joinerIds.size();
+        int stashed = 0;
+        List<Long> failed = new ArrayList<>();
+
+        for(Long joinerId : joinerIds){
+            try{
+                Joiner joiner = joinerRepository.findById(joinerId)
+                        .orElseThrow(() -> new NotFoundJoinerException("해당 ID의 Joiner를 찾을 수 없습니다."));
+
+                joiner.setStashed(false);
+                joinerRepository.save(joiner);
+                stashed++;
+
+            } catch (Exception e) {
+                failed.add(joinerId);
+            }
+        }
+
+        return StashDocsResponse.builder()
+                .requested(requested)
+                .stashed(stashed)
+                .failed(failed)
+                .build();
+    }
 }
