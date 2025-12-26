@@ -192,7 +192,7 @@ public class ManageController {
         );
     }
 
-    @Operation(summary = "지원서류 임시 휴지통으로 보내기")
+    @Operation(summary = "임시 휴지통 서류 조회")
     @GetMapping("/apply/docs/stash")
     public BaseResponse<ApplicationStatusResponse> getStashedDocs(
             @Auth AuthInfo authInfo,
@@ -207,5 +207,14 @@ public class ManageController {
         return new BaseResponse<>(manageService.getStashApplications(authInfo, track, pageable));
     }
 
-
+    @Operation(summary = "임시 휴지통에서 복구하기")
+    @PutMapping("/apply/docs/stash")
+    public BaseResponse<StashDocsResponse> restoreDocs(
+            @Auth AuthInfo authInfo,
+            @RequestBody @Valid StashDocsRequest request
+    ) {
+        return new BaseResponse<>(
+                manageService.restoreDocs(authInfo, request.getJoinerIds())
+        );
+    }
 }
