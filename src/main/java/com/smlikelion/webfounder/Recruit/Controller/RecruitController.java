@@ -1,6 +1,7 @@
 package com.smlikelion.webfounder.Recruit.Controller;
 
 import com.smlikelion.webfounder.Recruit.Dto.Request.RecruitmentRequest;
+import com.smlikelion.webfounder.Recruit.Dto.Response.BatchResult;
 import com.smlikelion.webfounder.Recruit.Dto.Response.RecruitmentResponse;
 import com.smlikelion.webfounder.Recruit.Entity.Joiner;
 import com.smlikelion.webfounder.Recruit.Repository.JoinerRepository;
@@ -112,6 +113,90 @@ public class RecruitController {
             return new BaseResponse<>("Content added to document successfully with ID: " + docId);
         } catch (Exception e) {
             return new BaseResponse<>(ErrorCode.INTERNAL_SERVER_ERROR.getCode(), "Google Docs update failed", null);
+        }
+    }
+    
+    /**
+     * 새로운 Google Docs 내보내기 API
+     * - 개별 지원서 문서 생성 + 20개 단위 묶음 문서 추가
+     * - 기존 지원서 등록과 분리된 독립적인 엔드포인트
+     * 
+     * @author 채민
+     */
+    @Operation(summary = "지원서를 개별 문서 생성 후 묶음 문서에 추가")
+    @PostMapping("/docs/export")
+    public BaseResponse<BatchResult> exportToGoogleDocs(
+            @RequestParam("track") String track,
+            @RequestBody @Valid RecruitmentRequest request,
+            BindingResult bindingResult) {
+
+        logValidationErrors(bindingResult);
+
+        // 트랙 유효성 검사 - 채민
+        if (!"fe".equalsIgnoreCase(track) && !"pm".equalsIgnoreCase(track) && !"be".equalsIgnoreCase(track)) {
+            return new BaseResponse<>(ErrorCode.NOT_FOUND.getCode(), 
+                "Invalid track value. Please provide a valid track (fe, pm, be).", null);
+        }
+
+        try {
+            // Google Docs 내보내기 실행 - 채민
+            BatchResult batchResult = recruitService.exportToGoogleDocsWithBatch(request);
+            
+            if (batchResult.isSuccess()) {
+                log.info("Google Docs 내보내기 성공: 학번={}, 묶음번호={}", 
+                        request.getStudentInfo().getStudentId(), batchResult.getBatchNumber());
+                return new BaseResponse<>(batchResult);
+            } else {
+                log.error("Google Docs 내보내기 실패: 학번={}, 오류={}", 
+                        request.getStudentInfo().getStudentId(), batchResult.getErrorMessage());
+                return new BaseResponse<>(ErrorCode.INTERNAL_SERVER_ERROR.getCode(), 
+                        batchResult.getErrorMessage(), batchResult);
+            }
+            
+        } catch (Exception e) {
+            log.error("Google Docs 내보내기 중 예외 발생", e);
+            return new BaseResponse<>(ErrorCode.INTERNAL_SERVER_ERROR.getCode(), 
+                    "Google Docs export failed: " + e.getMessage(), null);
+        }
+    }
+    
+    /**
+     * 통합 지원서 제출 API (새로운 Google Docs 내보내기 포함)
+     * - 지원서 DB 저장 + Google Docs 내보내기 통합 실행
+     * - 기존 /docs 엔드포인트의 개선된 버전
+     * 
+     * @author 채민
+     */
+    @Operation(summary = "지원서 제출 및 새로운 Google Docs 내보내기 (통합)")
+    @PostMapping("/docs/submit-with-export")
+    public BaseResponse<RecruitmentResponse> submitRecruitmentWithExport(
+            @RequestParam("track") String track,
+            @RequestBody @Valid RecruitmentRequest request,
+            BindingResult bindingResult) {
+
+        logValidationErrors(bindingResult);
+
+        // 트랙 유효성 검사 - 채민
+        if (!"fe".equalsIgnoreCase(track) && !"pm".equalsIgnoreCase(track) && !"be".equalsIgnoreCase(track)) {
+            return new BaseResponse<>(ErrorCode.NOT_FOUND.getCode(), 
+                "Invalid track value. Please provide a valid track (fe, pm, be).", null);
+        }
+
+        try {
+            // 지원서 등록 + Google Docs 내보내기 통합 실행 - 채민
+            RecruitmentResponse recruitResponse = recruitService.registerRecruitmentWithDocsExport(request);
+            
+            log.info("통합 지원서 제출 완료: 학번={}", request.getStudentInfo().getStudentId());
+            return new BaseResponse<>(recruitResponse);
+            
+        } catch (DuplicateStudentIdException e) {
+            log.warn("중복 학번 지원서 제출 시도: {}", request.getStudentInfo().getStudentId());
+            return new BaseResponse<>(ErrorCode.NOT_FOUND.getCode(), 
+                    ErrorCode.DUPLICATE_STUDENT_ID_ERROR.getMessage(), null);
+        } catch (Exception e) {
+            log.error("통합 지원서 제출 중 오류 발생", e);
+            return new BaseResponse<>(ErrorCode.INTERNAL_SERVER_ERROR.getCode(), 
+                    "Recruitment submission failed: " + e.getMessage(), null);
         }
     }
 }

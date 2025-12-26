@@ -3,6 +3,7 @@ package com.smlikelion.webfounder.global.config;
 import com.smlikelion.webfounder.security.AuthArgumentResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -17,6 +18,17 @@ public class WebConfig implements WebMvcConfigurer {
     @Bean
     public AuthArgumentResolver authArgumentResolver() {
         return new AuthArgumentResolver();
+    }
+    
+    /**
+     * RestTemplate Bean 등록
+     * - Google Apps Script 호출용 HTTP 클라이언트
+     * 
+     * @author 채민
+     */
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 
     @Override

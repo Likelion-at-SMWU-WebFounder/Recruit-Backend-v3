@@ -68,3 +68,13 @@ google:
     application-name: Recruitment System
     scope: https://www.googleapis.com/auth/documents
     document-id: ${GOOGLE_DOCS_DOCUMENT_ID}
+    # Google Docs 템플릿 문서 ID: 개별 지원서 생성 시 복사할 기본 템플릿 - 채민
+    template-id: ${GOOGLE_DOCS_TEMPLATE_ID}
+  drive:
+    # Google Drive 폴더 ID: 생성된 문서들을 저장할 최종 폴더 - 채민
+    output-folder-id: ${GOOGLE_DRIVE_OUTPUT_FOLDER_ID}
+    # Google Drive 폴더 ID: 개별 지원서 문서들을 임시 저장할 폴더 - 채민
+    individual-folder-id: ${GOOGLE_DRIVE_INDIVIDUAL_FOLDER_ID}
+  apps-script:
+    # Google Apps Script 웹 앱 URL: 묶음 문서 생성 및 관리용 - 채민
+    web-app-url: ${GOOGLE_APPS_SCRIPT_WEB_APP_URL}

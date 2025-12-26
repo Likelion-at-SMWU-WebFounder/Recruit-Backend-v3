@@ -1,0 +1,32 @@
+{
+  "studentInfo": {
+    "name": "채민테스트",
+    "studentId": "12345",
+    "email": "test@sookmyung.ac.kr",
+    "major": "컴퓨터과학전공",
+    "track": "BE",
+    "phoneNumber": "010-1234-5678",
+    "completedSem": 6,
+    "portfolio": "https://github.com/test-portfolio",
+    "schoolStatus": "ENROLLED",
+    "programmers": "ENROLLED",
+    "graduatedYear": "2024",
+    "agreeToTerms": true,
+    "agreeToEventParticipation": true,
+    "password": "testpass123"
+  },
+  "answerList": {
+    "a1": "웹파운더즈에 지원하게 된 동기는 개발 실력을 향상시키고 동료들과 협업하며 성장하고 싶어서입니다.",
+    "a2": "백엔드 개발자로서 서버 구조 설계와 데이터베이스 최적화에 관심이 많습니다.",
+    "a3": "Spring Boot와 MySQL을 활용한 RESTful API 개발 경험이 있으며, Docker를 이용한 배포도 경험해보았습니다.",
+    "a4": "팀 프로젝트에서 기획자와 디자이너, 프론트엔드 개발자들과 소통하며 협업한 경험이 있습니다.",
+    "a5": "졸업 후 풀스택 개발자로 성장하여 스타트업에서 서비스를 개발하고 싶습니다.",
+    "a6": "새로운 기술을 빠르게 학습하고 적용하는 능력이 저의 강점입니다.",
+    "a7": "웹파운더즈 활동을 통해 실무 경험을 쌓고 개발자 네트워크를 확장하고 싶습니다."
+  },
+  "interview_time": {
+    "2024-01-15": "14:00",
+    "2024-01-16": "16:00",
+    "2024-01-17": "10:00"
+  }
+}
