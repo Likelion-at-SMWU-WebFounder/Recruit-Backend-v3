@@ -62,13 +62,14 @@ public class RecruitService {
                 .build();
     }
 
-    public String uploadToGoogleDocs(String documentId, RecruitmentRequest request) {
+    public String uploadToGoogleDocs(String documentId, Long applicationId, RecruitmentRequest request) {
         if (request == null || request.getStudentInfo() == null || request.getAnswerListRequest() == null) {
             throw new IllegalArgumentException("필수 요청 데이터가 누락되었습니다.");
         }
 
         try {
-            googleDocsService.uploadRecruitmentToGoogleDocs(documentId, request);
+//            googleDocsService.uploadRecruitmentToGoogleDocs(documentId, request);
+            googleDocsService.appendOneApplication(documentId, applicationId, request);
             return documentId;
         } catch (IOException e) {
             throw new RuntimeException("Google Docs 업로드 실패", e);
