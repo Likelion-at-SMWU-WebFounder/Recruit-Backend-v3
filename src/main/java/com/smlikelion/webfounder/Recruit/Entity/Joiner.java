@@ -93,6 +93,9 @@ public class Joiner extends DateEntity {
 
     private boolean agreeToEventParticipation;
 
+    @Column(name="stashed", nullable=false)
+    private boolean stashed = false;
+
 
     public void setProgrammers(Programmers programmers) {
         this.programmers = programmers;
