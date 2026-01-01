@@ -3,16 +3,8 @@ package com.smlikelion.webfounder.manage.controller;
 import com.smlikelion.webfounder.Recruit.Repository.JoinerRepository;
 import com.smlikelion.webfounder.global.dto.response.BaseResponse;
 import com.smlikelion.webfounder.global.dto.response.ErrorCode;
-import com.smlikelion.webfounder.manage.dto.request.DeleteDocsRequest;
-import com.smlikelion.webfounder.manage.dto.request.DocsInterPassRequestDto;
-import com.smlikelion.webfounder.manage.dto.request.DocsQuestRequest;
-import com.smlikelion.webfounder.manage.dto.request.DocsQuestUpdateRequest;
-import com.smlikelion.webfounder.manage.dto.request.InterviewTimeRequest;
-import com.smlikelion.webfounder.manage.dto.response.ApplicationStatusResponse;
-import com.smlikelion.webfounder.manage.dto.response.DeleteDocsResponse;
-import com.smlikelion.webfounder.manage.dto.response.DocsPassResponseDto;
-import com.smlikelion.webfounder.manage.dto.response.DocsQuestResponse;
-import com.smlikelion.webfounder.manage.dto.response.InterviewPassResponseDto;
+import com.smlikelion.webfounder.manage.dto.request.*;
+import com.smlikelion.webfounder.manage.dto.response.*;
 import com.smlikelion.webfounder.manage.service.ManageService;
 import com.smlikelion.webfounder.manage.service.SQLExecutionService;
 import com.smlikelion.webfounder.security.Auth;
@@ -189,4 +181,40 @@ public class ManageController {
         );
     }
 
+    @Operation(summary = "지원서류 임시 휴지통으로 보내기")
+    @PostMapping("/apply/docs/stash")
+    public BaseResponse<StashDocsResponse> stashDocs(
+            @Auth AuthInfo authInfo,
+            @RequestBody @Valid StashDocsRequest request
+    ) {
+        return new BaseResponse<>(
+                manageService.stashDocs(authInfo, request.getJoinerIds())
+        );
+    }
+
+    @Operation(summary = "임시 휴지통 서류 조회")
+    @GetMapping("/apply/docs/stash")
+    public BaseResponse<ApplicationStatusResponse> getStashedDocs(
+            @Auth AuthInfo authInfo,
+            @RequestParam(value="track", required=false, defaultValue="ALL") String track,
+            @RequestParam(value="page", required = false, defaultValue = "0") int page,
+            @RequestParam(value="size", required = false, defaultValue = "10") int size) {
+        if( page < 0 || size <= 0) {
+            page = 0;
+            size = 10;
+        }
+        Pageable pageable = PageRequest.of(page, size);
+        return new BaseResponse<>(manageService.getStashApplications(authInfo, track, pageable));
+    }
+
+    @Operation(summary = "임시 휴지통에서 복구하기")
+    @PutMapping("/apply/docs/stash")
+    public BaseResponse<StashDocsResponse> restoreDocs(
+            @Auth AuthInfo authInfo,
+            @RequestBody @Valid StashDocsRequest request
+    ) {
+        return new BaseResponse<>(
+                manageService.restoreDocs(authInfo, request.getJoinerIds())
+        );
+    }
 }
