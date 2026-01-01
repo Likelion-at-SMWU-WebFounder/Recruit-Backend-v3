@@ -37,10 +37,12 @@ public class RecruitService {
         }
 
         Joiner joiner = request.getStudentInfo().toJoiner();
+        joiner.setStashed(false);
         joiner.setInterviewTime(request.getInterview_time());
 
         List<String> answerList = request.getAnswerListRequest().toAnswerList();
         joiner.setAnswerList(answerList);
+
 
         joiner = joinerRepository.save(joiner);
         if (joiner != null) {
