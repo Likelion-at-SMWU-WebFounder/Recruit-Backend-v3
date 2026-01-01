@@ -326,7 +326,9 @@ public class ManageService {
         Track requestedTrack = validateTrackName(track);
 
         List<DocsPassResponseDto> result = new ArrayList<>();
-        List<Object[]> joinerAndCandidateList = candidateRepository.findAllJoinerAndCandidateByDocs(Docs.PASS);
+        List<Object[]> joinerAndCandidateList = candidateRepository.findAllJoinerAndCandidateByDocs(Docs.PASS).stream()
+                .filter(objects -> !((Joiner)objects[0]).isStashed())
+                .collect(Collectors.toList());
 
         if(track.equals("all")){
             for (Object[] objects : joinerAndCandidateList) {
@@ -382,6 +384,11 @@ public class ManageService {
         if (joinerList == null) {
            return Collections.emptyList();
         }
+
+        joinerList = joinerList.stream()
+                .filter(joiner -> !joiner.isStashed())
+                .collect(Collectors.toList());
+
         if(track.equals("all")){
             return joinerList.stream()
                     .map(this::mapJoinerToResponse)
@@ -441,10 +448,10 @@ public class ManageService {
         Track requestedTrack = validateTrackName(track);
         Page<Joiner> joinerPage = new PageImpl<>(List.of());
         if(requestedTrack.equals(Track.ALL)){
-            joinerPage = joinerRepository.findAllByOrderByCreatedAt(pageable);
+            joinerPage = joinerRepository.findAllByStashedFalseOrderByCreatedAt(pageable);
         }
         else{
-            joinerPage = joinerRepository.findAllByTrackOrderByCreatedAtAsc(requestedTrack, pageable);
+            joinerPage = joinerRepository.findAllByStashedFalseAndTrackOrderByCreatedAtAsc(requestedTrack, pageable);
         }
 
         List<ApplicationDocumentPreview> applicationDocumentPreviewList = joinerPage.getContent().stream()
