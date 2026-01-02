@@ -10,6 +10,7 @@ import com.smlikelion.webfounder.manage.entity.Candidate;
 import com.smlikelion.webfounder.manage.repository.CandidateRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 
 import java.io.IOException;
@@ -26,8 +27,9 @@ public class RecruitService {
     private final CandidateRepository candidateRepository;
     private final MailService mailService;
     private final GoogleDocsService googleDocsService;
+    private final AwsS3Service awsS3Service;
 
-    public RecruitmentResponse registerRecruitment(RecruitmentRequest request) {
+    public RecruitmentResponse registerRecruitment(RecruitmentRequest request, MultipartFile programmersFile) {
 
         String studentId = request.getStudentInfo().getStudentId();
 
@@ -36,7 +38,11 @@ public class RecruitService {
             throw new DuplicateStudentIdException("동일한 학번으로 중복된 지원서가 이미 제출되었습니다.");
         }
 
+        // 프로그래머스 인증 파일 S3에 업로드
+        String url = awsS3Service.uploadFile(request.getStudentInfo().getName(), programmersFile);
+
         Joiner joiner = request.getStudentInfo().toJoiner();
+        joiner.setProgrammersImageUrl(url);
         joiner.setInterviewTime(request.getInterview_time());
 
         List<String> answerList = request.getAnswerListRequest().toAnswerList();
