@@ -1,7 +1,7 @@
-package com.smlikelion.webfounder.Recruit.Service.docs;
+package com.smlikelion.webfounder.Recruit.Service;
 
-import com.google.api.client.util.Value;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -23,9 +23,9 @@ public class AwsS3Service {
     private final S3Client s3Client;
 
     // zip 파일 업로드
-    public String uploadFile(MultipartFile file) {
+    public String uploadFile(String name, MultipartFile file) {
         try{
-            String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+            String fileName = UUID.randomUUID() + "_" + name + "_" + file.getOriginalFilename();
 
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(bucket)
