@@ -52,7 +52,7 @@ public class Joiner extends DateEntity {
     @Enumerated(EnumType.ORDINAL)
     private Programmers programmers = Programmers.NOT_ENROLLED; // 기본값 설정
 
-    @Column(name = "programmers_image_url")
+    @Column(name = "programmers_image_url", length = 1000)
     private String programmersImageUrl;
 
     @Column(name = "password", nullable = false)
