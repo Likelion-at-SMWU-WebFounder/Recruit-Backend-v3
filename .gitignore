@@ -1,5 +1,6 @@
 src/main/resources/credentials.json
 src/main/resources/credentials.json
 build/resources/main/credentials.json
+src/main/resources/application.yml
 /build/
 /.gradle/
