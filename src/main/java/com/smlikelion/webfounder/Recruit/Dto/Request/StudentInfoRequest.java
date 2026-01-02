@@ -5,7 +5,9 @@ import com.smlikelion.webfounder.Recruit.Entity.SchoolStatus;
 import com.smlikelion.webfounder.Recruit.Entity.Track;
 import lombok.Getter;
  import lombok.Setter;
- import javax.validation.constraints.NotBlank;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 
@@ -70,7 +72,7 @@ public class StudentInfoRequest {
         joiner.setSchoolStatus(convertToSchoolStatusEnum(this.getSchoolStatus())); // SchoolStatus 열거형으로 변환
         joiner.setProgrammers(convertToProgrammersEnum(this.getProgrammers())); // Programmers 열거형으로 변환
         joiner.setPassword(this.getPassword());
-        joiner.setProgrammersImageUrl(this.getProgrammersImg());
+//        joiner.setProgrammersImageUrl(this.getProgrammersImg());
         joiner.setGraduatedYear(this.getGraduatedYear());
         joiner.setAgreeToTerms(this.isAgreeToTerms()); // 개인정보 동의 여부 설정
         joiner.setAgreeToEventParticipation(this.isAgreeToEventParticipation()); // 행사 필수참여 동의 여부 설정
