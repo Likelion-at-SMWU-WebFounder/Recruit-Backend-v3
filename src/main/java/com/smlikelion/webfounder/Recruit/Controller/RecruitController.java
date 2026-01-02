@@ -49,8 +49,11 @@ public class RecruitController {
                 // 서류 등록
                 RecruitmentResponse recruitResponse = recruitService.registerRecruitment(request);
 
+                // DB PK (지원번호)
+                Long applicationId = recruitResponse.getId();
+
                 // Google Docs 업로드
-                recruitService.uploadToGoogleDocs(documentId, request);
+                recruitService.uploadToGoogleDocs(documentId, applicationId, request);
                 log.info("Google Docs에 서류가 정상적으로 업로드됨: {}", documentId);
 
                 return new BaseResponse<>(recruitResponse);
@@ -108,7 +111,7 @@ public class RecruitController {
         logValidationErrors(bindingResult);
 
         try {
-            String docId = recruitService.uploadToGoogleDocs(documentId, request);
+            String docId = recruitService.uploadToGoogleDocs(documentId, 1L, request);
             return new BaseResponse<>("Content added to document successfully with ID: " + docId);
         } catch (Exception e) {
             return new BaseResponse<>(ErrorCode.INTERNAL_SERVER_ERROR.getCode(), "Google Docs update failed", null);

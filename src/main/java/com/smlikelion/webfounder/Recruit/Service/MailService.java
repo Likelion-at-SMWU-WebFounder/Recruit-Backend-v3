@@ -59,9 +59,9 @@ public class MailService {
         List<String> mailList=getEmailsOnly();
         SimpleMailMessage message=new SimpleMailMessage();
 
-        message.setSubject("[멋쟁이사자처럼 숙명여대] 13기 모집이 시작되었습니다."); // 메일 제목
+        message.setSubject("[멋쟁이사자처럼 숙명여대] 14기 모집이 시작되었습니다."); // 메일 제목
         message.setTo(mailList.toArray(new String[mailList.size()]));
-        message.setText("멋쟁이사자처럼 숙명여대의 13기 모집이 공식적으로 시작되었음을 알려드리고자 합니다. \n" +
+        message.setText("멋쟁이사자처럼 숙명여대의 14기 모집이 공식적으로 시작되었음을 알려드리고자 합니다. \n" +
                 "\n" +
                 "모집에 관심을 가지고 계신 분들께서는 인스타그램 및 공식 홈페이지의 공지사항을 확인하여 자세한 정보를 얻어주시기 바랍니다.\n" +
                 "\n" +
@@ -79,7 +79,7 @@ public class MailService {
         SimpleMailMessage message=new SimpleMailMessage();
 
         try{
-            message.setSubject("[멋쟁이사자처럼 숙명여대] 13기 지원서류 접수가 정상적으로 처리되었습니다."); // 메일 제목
+            message.setSubject("[멋쟁이사자처럼 숙명여대] 14기 지원서류 접수가 정상적으로 처리되었습니다."); // 메일 제목
             message.setTo(receiver);
             message.setText("안녕하세요,\n" +
                     "\n" +
