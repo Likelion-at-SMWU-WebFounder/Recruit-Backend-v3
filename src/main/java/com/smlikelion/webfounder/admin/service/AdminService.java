@@ -74,9 +74,6 @@ public class AdminService {
         if(adminRepository.existsByAccountId(request.getAccountId())) {
             throw new AlreadyExistsAccountException("이미 존재하는 아이디입니다.");
         }
-        if(adminRepository.existsByName(request.getName())) {
-            throw new AlreadyExistsNameException("이미 존재하는 이름입니다.");
-        }
 
         Admin admin = adminRepository.save(
                 Admin.builder()
