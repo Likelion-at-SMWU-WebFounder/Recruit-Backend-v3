@@ -2,9 +2,6 @@ package com.smlikelion.webfounder.Recruit.Controller;
 
 import com.smlikelion.webfounder.Recruit.Dto.Request.RecruitmentRequest;
 import com.smlikelion.webfounder.Recruit.Dto.Response.RecruitmentResponse;
-import com.smlikelion.webfounder.Recruit.Entity.Joiner;
-import com.smlikelion.webfounder.Recruit.Repository.JoinerRepository;
-import com.smlikelion.webfounder.Recruit.Service.AwsS3Service;
 import com.smlikelion.webfounder.Recruit.Service.RecruitService;
 import com.smlikelion.webfounder.Recruit.exception.DuplicateStudentIdException;
 import com.smlikelion.webfounder.global.dto.response.BaseResponse;
@@ -30,12 +27,6 @@ public class RecruitController {
 
     @Autowired
     private RecruitService recruitService;
-
-    @Autowired
-    private JoinerRepository joinerRepository;
-
-    @Autowired
-    private AwsS3Service awsS3Service;
 
     @Value("${GOOGLE_DOCS_DOCUMENT_ID}")
     private String documentId;
@@ -81,31 +72,17 @@ public class RecruitController {
     @GetMapping("/docs/{joinerId}")
     public BaseResponse<RecruitmentResponse> getJoinerDetails(
             @PathVariable Long joinerId) {
-        Joiner joiner = joinerRepository.findById(joinerId).orElse(null);
+        log.info("트랙별 서류 조회 조회 요청 - joinerId: {}", joinerId);
 
-        // 1. DB에서 fileName가져오기
-        String fileName = joiner.getProgrammersImageUrl();
-        String presignedUrl = null;
-
-        // 2. fileName이 null이 아니고 비어있지 않을 때만 Pre-signed URL 생성
-        if (fileName != null && !fileName.isEmpty()) {
-            presignedUrl = awsS3Service.generatePresignedUrl(fileName);
-        }
-
-        if (joiner != null) {
-            // Joiner를 찾은 경우, RecruitmentResponse로 변환하여 응답 반환
-            RecruitmentResponse recruitResponse = RecruitmentResponse.builder()
-                    .id(joiner.getId())
-                    .studentInfo(joiner.toStudentInfoResponse(presignedUrl))
-                    .answerList(joiner.toAnswerListResponse())
-                    .interviewTime(joiner.getInterviewTimeValues()) // 필요에 따라 수정
-                    .build();
-
-
+        try{
+            RecruitmentResponse recruitResponse = recruitService.getRecruitment(joinerId);
             return new BaseResponse<>(recruitResponse);
-        } else {
-            // Joiner를 찾지 못한 경우, 오류 응답 반환
+        } catch (IllegalArgumentException e){
+            log.warn("잘못된 요청 - joinerId: {}, error: {}", joinerId, e.getMessage());
             return new BaseResponse<>(ErrorCode.NOT_FOUND);
+        } catch (Exception e) {
+            log.error("지원자 정보 조회 중 오류 발생 - joinerId: {}, error: {}", joinerId, e.getMessage(), e);
+            return new BaseResponse<>(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 

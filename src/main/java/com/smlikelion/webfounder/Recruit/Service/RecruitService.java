@@ -9,6 +9,7 @@ import com.smlikelion.webfounder.Recruit.exception.DuplicateStudentIdException;
 import com.smlikelion.webfounder.manage.entity.Candidate;
 import com.smlikelion.webfounder.manage.repository.CandidateRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,7 +19,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-
+@Slf4j
 @Service
 @AllArgsConstructor
 public class RecruitService {
@@ -69,6 +70,39 @@ public class RecruitService {
                 .answerList(joiner.toAnswerListResponse())
                 .interviewTime(interviewTime)
                 .build();
+    }
+
+    public RecruitmentResponse getRecruitment(Long joinerId) {
+
+        // 1. joinerId 유효성 검증
+        if(joinerId == null){
+            throw new IllegalArgumentException("지원자 ID는 null일 수 없습니다.");
+        }
+
+        // 2. joiner 조회
+        Joiner joiner = joinerRepository.findById(joinerId).orElse(null);
+
+        String presignedUrl = null;
+
+        // 3. fileName이 null이 아니고 비어있지 않을 때만 Pre-signed URL 생성
+        try {
+            String fileName = joiner.getProgrammersImageUrl();
+
+            if (fileName != null && !fileName.isEmpty()) {
+                presignedUrl = awsS3Service.generatePresignedUrl(fileName);
+            }
+        } catch (Exception e) {
+            log.warn("Pre-signed URL 생성 실패 - joinerId: {}, fileName: {}, error: {}",
+                    joinerId, joiner.getProgrammersImageUrl(), e.getMessage());
+        }
+
+        return RecruitmentResponse.builder()
+                .id(joiner.getId())
+                .studentInfo(joiner.toStudentInfoResponse(presignedUrl))
+                .answerList(joiner.toAnswerListResponse())
+                .interviewTime(joiner.getInterviewTimeValues()) // 필요에 따라 수정
+                .build();
+
     }
 
     public String uploadToGoogleDocs(String documentId, Long applicationId, RecruitmentRequest request) {
