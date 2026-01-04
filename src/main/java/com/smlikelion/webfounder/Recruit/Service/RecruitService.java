@@ -39,10 +39,12 @@ public class RecruitService {
         }
 
         // 프로그래머스 인증 파일 S3에 업로드
-        String url = awsS3Service.uploadFile(request.getStudentInfo().getName(), programmersFile);
+        String fileName = null;
+        if(programmersFile != null)
+            fileName = awsS3Service.uploadFile(request.getStudentInfo().getName(), programmersFile);
 
         Joiner joiner = request.getStudentInfo().toJoiner();
-        joiner.setProgrammersImageUrl(url);
+        joiner.setProgrammersImageUrl(fileName);
         joiner.setInterviewTime(request.getInterview_time());
 
         List<String> answerList = request.getAnswerListRequest().toAnswerList();
@@ -52,7 +54,8 @@ public class RecruitService {
         if (joiner != null) {
             mailService.sendApplyStatusMail(joiner.getEmail());
         }
-        StudentInfoResponse studentInfoResponse = joiner.toStudentInfoResponse();
+
+        StudentInfoResponse studentInfoResponse = joiner.toStudentInfoResponse(fileName);
 
         // cadidate entity 생성 시 서류합 란을 reject로 초기 설정
         Candidate candidate = new Candidate(joiner, "REJECT", "REJECT");
