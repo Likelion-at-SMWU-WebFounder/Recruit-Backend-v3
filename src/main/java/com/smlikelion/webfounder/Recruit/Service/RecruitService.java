@@ -61,18 +61,13 @@ public class RecruitService {
 
         joiner = joinerRepository.save(joiner);
 
-        // 지원 완료 메일 전송
-        if (joiner != null) {
-            mailService.sendApplyStatusMail(joiner.getEmail());
-        }
-
         // cadidate entity 생성 시 서류합 란을 reject로 초기 설정
         Candidate candidate = new Candidate(joiner, "REJECT", "REJECT");
         candidateRepository.save(candidate);
 
-        // 지원번호와 함께 Google Docs에 업로드
+        // 지원 완료 시, Google Docs에 업로드 + 메일 전송
         Long applicationId = joiner.getId();
-        eventPublisher.publishEvent(new RecruitmentAppliedEvent(documentId, applicationId, request));
+        eventPublisher.publishEvent(new RecruitmentAppliedEvent(documentId, applicationId, request, joiner.getEmail()));
         log.info("Google Docs에 서류가 정상적으로 업로드됨: {}", documentId);
 
         // 응답 객체 반환
