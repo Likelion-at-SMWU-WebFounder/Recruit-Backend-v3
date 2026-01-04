@@ -2,8 +2,6 @@ package com.smlikelion.webfounder.Recruit.Controller;
 
 import com.smlikelion.webfounder.Recruit.Dto.Request.RecruitmentRequest;
 import com.smlikelion.webfounder.Recruit.Dto.Response.RecruitmentResponse;
-import com.smlikelion.webfounder.Recruit.Entity.Joiner;
-import com.smlikelion.webfounder.Recruit.Repository.JoinerRepository;
 import com.smlikelion.webfounder.Recruit.Service.RecruitService;
 import com.smlikelion.webfounder.Recruit.exception.DuplicateStudentIdException;
 import com.smlikelion.webfounder.global.dto.response.BaseResponse;
@@ -13,9 +11,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -28,26 +28,24 @@ public class RecruitController {
     @Autowired
     private RecruitService recruitService;
 
-    @Autowired
-    private JoinerRepository joinerRepository;
-
     @Value("${GOOGLE_DOCS_DOCUMENT_ID}")
     private String documentId;
 
 
     @Operation(summary = "트랙별 서류 작성하기 및 Google Docs 자동 업로드")
-    @PostMapping("/docs")
+    @PostMapping(value = "/docs", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponse<RecruitmentResponse> submitRecruitment(
             @RequestParam("track") String track,
-            @RequestBody @Valid RecruitmentRequest request,
-            BindingResult bindingResult) {
+            @RequestPart("request") @Valid RecruitmentRequest request,
+            BindingResult bindingResult,
+            @RequestPart(value="programmersFile", required=false) MultipartFile programmersFile) {
 
         logValidationErrors(bindingResult);
 
         if ("fe".equalsIgnoreCase(track) || "pm".equalsIgnoreCase(track) || "be".equalsIgnoreCase(track)) {
             try {
                 // 서류 등록
-                RecruitmentResponse recruitResponse = recruitService.registerRecruitment(request);
+                RecruitmentResponse recruitResponse = recruitService.registerRecruitment(request, programmersFile);
 
                 // DB PK (지원번호)
                 Long applicationId = recruitResponse.getId();
@@ -74,21 +72,17 @@ public class RecruitController {
     @GetMapping("/docs/{joinerId}")
     public BaseResponse<RecruitmentResponse> getJoinerDetails(
             @PathVariable Long joinerId) {
-        Joiner joiner = joinerRepository.findById(joinerId).orElse(null);
+        log.info("트랙별 서류 조회 조회 요청 - joinerId: {}", joinerId);
 
-        if (joiner != null) {
-            // Joiner를 찾은 경우, RecruitmentResponse로 변환하여 응답 반환
-            RecruitmentResponse recruitResponse = RecruitmentResponse.builder()
-                    .id(joiner.getId())
-                    .studentInfo(joiner.toStudentInfoResponse())
-                    .answerList(joiner.toAnswerListResponse())
-                    .interviewTime(joiner.getInterviewTimeValues()) // 필요에 따라 수정
-                    .build();
-
+        try{
+            RecruitmentResponse recruitResponse = recruitService.getRecruitment(joinerId);
             return new BaseResponse<>(recruitResponse);
-        } else {
-            // Joiner를 찾지 못한 경우, 오류 응답 반환
+        } catch (IllegalArgumentException e){
+            log.warn("잘못된 요청 - joinerId: {}, error: {}", joinerId, e.getMessage());
             return new BaseResponse<>(ErrorCode.NOT_FOUND);
+        } catch (Exception e) {
+            log.error("지원자 정보 조회 중 오류 발생 - joinerId: {}, error: {}", joinerId, e.getMessage(), e);
+            return new BaseResponse<>(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -102,7 +96,7 @@ public class RecruitController {
     }
 
     @Operation(summary = "트랙별 서류를 Google Docs에 추가")
-    @PostMapping("/docs/upload")
+    @PostMapping(value = "/docs/upload")
     public BaseResponse<String> uploadToExistingGoogleDoc(
             @RequestParam("documentId") String documentId,
             @RequestBody @Valid RecruitmentRequest request,
