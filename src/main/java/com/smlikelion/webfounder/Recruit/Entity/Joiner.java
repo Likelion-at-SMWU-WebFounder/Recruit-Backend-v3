@@ -53,7 +53,7 @@ public class Joiner extends DateEntity {
     @Enumerated(EnumType.ORDINAL)
     private Programmers programmers = Programmers.NOT_ENROLLED; // 기본값 설정
 
-    @Column(name = "programmers_image_url")
+    @Column(name = "programmers_image_url", length = 1000)
     private String programmersImageUrl;
 
     @Column(name = "password", nullable = false)
@@ -112,7 +112,7 @@ public class Joiner extends DateEntity {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    public StudentInfoResponse toStudentInfoResponse() {
+    public StudentInfoResponse toStudentInfoResponse(String programmersFile) {
         return StudentInfoResponse.builder()
                 .name(this.name)
                 .track(this.track != null ? this.track.getTrackName() : null)
@@ -125,7 +125,7 @@ public class Joiner extends DateEntity {
                 .completedSem(this.completedSem)
                 .schoolStatus(this.schoolStatus != null ? this.schoolStatus.name() : null) // 열거형에서 문자열 표현으로 변환
                 .programmers(this.programmers != null ? this.programmers.name() : Programmers.NOT_ENROLLED.name()) // 열거형에서 문자열 표현으로 변환
-                .programmersImg(this.programmersImageUrl)
+                .programmersImg(programmersFile)
                 .graduatedYear(this.graduatedYear)
                 .agreeToTerms(this.isAgreeToTerms()) // 개인정보 동의 여부 설정
                 .agreeToEventParticipation(this.isAgreeToEventParticipation()) // 행사 필수참여 동의 여부 설정
