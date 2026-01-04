@@ -168,7 +168,7 @@ public class GoogleDocsService {
                     documentId, new BatchUpdateDocumentRequest().setRequests(requests)
             ).execute();
         } catch (GoogleJsonResponseException e) {
-            log.error("Google Docs API 오류 발생! status={}, message={}", e.getStatusCode(), e.getDetails().getMessage());
+            log.error("Google Docs API 오류 발생 status={}, message={}", e.getStatusCode(), e.getDetails().getMessage());
             if (e.getStatusCode() == 400) {
                 log.error("잘못된 인덱스 혹은 요청 형식이 포함되었습니다. 요청 내용을 확인하세요.");
             }
