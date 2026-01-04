@@ -46,6 +46,7 @@ public class RecruitService {
 
         Joiner joiner = request.getStudentInfo().toJoiner();
         joiner.setProgrammersImageUrl(fileName);
+        joiner.setStashed(false);
         joiner.setInterviewTime(request.getInterview_time());
 
         List<String> answerList = request.getAnswerListRequest().toAnswerList();

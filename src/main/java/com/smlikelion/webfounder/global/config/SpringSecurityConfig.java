@@ -104,8 +104,7 @@ public class SpringSecurityConfig {
                 "/api/admin/signin",
                 "/api/admin/signup",
                 "/api/project/**",
-                "/api/recruit/**",
-                "/api/manage/docs/quest"
+                "/api/recruit/**"
         );
     }
 }
