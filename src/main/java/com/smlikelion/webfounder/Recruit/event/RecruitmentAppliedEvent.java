@@ -10,4 +10,5 @@ public class RecruitmentAppliedEvent {
     private final String documentId;
     private final Long applicationId;
     private final RecruitmentRequest request;
+    private final String email;
 }
