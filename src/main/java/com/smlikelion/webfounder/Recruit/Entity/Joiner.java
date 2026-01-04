@@ -13,6 +13,7 @@ import org.hibernate.annotations.TypeDef;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Entity
@@ -102,7 +103,13 @@ public class Joiner extends DateEntity {
     }
 
     public Set<String> getInterviewTimeValues() {
-        return new HashSet<>(this.interviewTime.values());
+        // 날짜-시간 순으로 정렬
+        return this.interviewTime.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey(
+                        Comparator.comparingInt(Integer::parseInt)
+                ))
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public StudentInfoResponse toStudentInfoResponse(String programmersFile) {
