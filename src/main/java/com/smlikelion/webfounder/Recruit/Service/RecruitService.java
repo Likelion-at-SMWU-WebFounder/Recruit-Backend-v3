@@ -5,12 +5,15 @@ import com.smlikelion.webfounder.Recruit.Dto.Response.RecruitmentResponse;
 import com.smlikelion.webfounder.Recruit.Dto.Response.StudentInfoResponse;
 import com.smlikelion.webfounder.Recruit.Entity.*;
 import com.smlikelion.webfounder.Recruit.Repository.JoinerRepository;
+import com.smlikelion.webfounder.Recruit.event.RecruitmentAppliedEvent;
 import com.smlikelion.webfounder.Recruit.exception.DuplicateStudentIdException;
 import com.smlikelion.webfounder.manage.entity.Candidate;
 import com.smlikelion.webfounder.manage.repository.CandidateRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 
@@ -29,8 +32,11 @@ public class RecruitService {
     private final MailService mailService;
     private final GoogleDocsService googleDocsService;
     private final AwsS3Service awsS3Service;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public RecruitmentResponse registerRecruitment(RecruitmentRequest request, MultipartFile programmersFile) {
+    @Transactional
+    public RecruitmentResponse registerRecruitment(RecruitmentRequest request, MultipartFile programmersFile,
+                                                   String documentId) {
 
         String studentId = request.getStudentInfo().getStudentId();
 
@@ -44,6 +50,7 @@ public class RecruitService {
         if(programmersFile != null)
             fileName = awsS3Service.uploadFile(request.getStudentInfo().getName(), programmersFile);
 
+        // 지원자 정보 저장
         Joiner joiner = request.getStudentInfo().toJoiner();
         joiner.setProgrammersImageUrl(fileName);
         joiner.setStashed(false);
@@ -53,16 +60,23 @@ public class RecruitService {
         joiner.setAnswerList(answerList);
 
         joiner = joinerRepository.save(joiner);
+
+        // 지원 완료 메일 전송
         if (joiner != null) {
             mailService.sendApplyStatusMail(joiner.getEmail());
         }
-
-        StudentInfoResponse studentInfoResponse = joiner.toStudentInfoResponse(fileName);
 
         // cadidate entity 생성 시 서류합 란을 reject로 초기 설정
         Candidate candidate = new Candidate(joiner, "REJECT", "REJECT");
         candidateRepository.save(candidate);
 
+        // 지원번호와 함께 Google Docs에 업로드
+        Long applicationId = joiner.getId();
+        eventPublisher.publishEvent(new RecruitmentAppliedEvent(documentId, applicationId, request));
+        log.info("Google Docs에 서류가 정상적으로 업로드됨: {}", documentId);
+
+        // 응답 객체 반환
+        StudentInfoResponse studentInfoResponse = joiner.toStudentInfoResponse(fileName);
         Set<String> interviewTime = request.getInterview_time().values().stream().collect(Collectors.toSet());
 
         return RecruitmentResponse.builder()
