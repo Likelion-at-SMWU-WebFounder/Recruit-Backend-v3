@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 
+import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
@@ -127,5 +128,19 @@ public class RecruitService {
         } catch (IOException e) {
             throw new RuntimeException("Google Docs 업로드 실패", e);
         }
+    }
+
+    @Transactional
+    public void updateStatus(String type, Long joinerId, SendStatus status) {
+        Joiner joiner = joinerRepository.findById(joinerId)
+                .orElseThrow(() -> new EntityNotFoundException("지원자를 찾을 수 없습니다."));
+
+        if ("MAIL".equals(type)){
+            joiner.setMailStatus(status);
+        } else if ("GOOGLE_DOCS".equals(type)) {
+            joiner.setGoogleDocsStatus(status);
+        }
+
+        // dirty checking에 의해 수정사항 자동 반영
     }
 }
