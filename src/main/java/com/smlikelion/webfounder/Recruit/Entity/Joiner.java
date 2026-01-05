@@ -97,6 +97,12 @@ public class Joiner extends DateEntity {
     @Column(name="stashed", nullable=false)
     private boolean stashed = false;
 
+    @Enumerated(EnumType.STRING)
+    private SendStatus googleDocsStatus = SendStatus.PENDING;
+
+    @Enumerated(EnumType.STRING)
+    private SendStatus mailStatus = SendStatus.PENDING;
+
 
     public void setProgrammers(Programmers programmers) {
         this.programmers = programmers;
