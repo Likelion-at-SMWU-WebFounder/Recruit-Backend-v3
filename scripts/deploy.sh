@@ -10,32 +10,37 @@ echo "========================================="
 echo "배포 시작: $(date)"
 echo "========================================="
 
+# 디렉토리 생성 및 권한 설정
+echo "디렉토리 설정 중..."
+sudo mkdir -p "$APP_PATH"
+sudo mkdir -p "$LOG_PATH"
+sudo chown ubuntu:ubuntu "$APP_PATH"
+sudo chown ubuntu:ubuntu "$LOG_PATH"
+
 # JAR 파일 존재 확인
 if [ ! -f "$APP_PATH/$JAR_NAME" ]; then
     echo "❌ JAR 파일이 존재하지 않습니다: $APP_PATH/$JAR_NAME"
     exit 1
 fi
 
-# 기존 프로세스 확인 및 종료
+# 이전 JAR 파일 백업
+echo "기존 파일 백업 중..."
+if [ -f "$APP_PATH/$JAR_NAME" ]; then
+    mv "$APP_PATH/$JAR_NAME" "$APP_PATH/${JAR_NAME}.bak.$(date +%Y%m%d_%H%M%S)"
+    echo "기존 파일을 백업했습니다"
+fi
+
+# 기존 프로세스 최종 확인 및 종료 (워크플로우에서 이미 종료했지만 안전장치)
 PID=$(pgrep -f "$JAR_NAME")
 if [ ! -z "$PID" ]; then
-    echo "기존 애플리케이션 종료 중... (PID: $PID)"
-    kill -15 $PID
-    
-    # Graceful shutdown 대기 (최대 30초)
-    for i in {1..30}; do
-        if ! pgrep -f "$JAR_NAME" > /dev/null; then
-            echo "애플리케이션이 정상적으로 종료되었습니다"
-            break
-        fi
-        echo "종료 대기 중... ($i/30)"
-        sleep 1
-    done
+    echo "남은 프로세스 정리 중... (PID: $PID)"
+    sudo kill -15 $PID
+    sleep 5
     
     # 여전히 실행 중이면 강제 종료
     if pgrep -f "$JAR_NAME" > /dev/null; then
         echo "강제 종료 실행..."
-        pkill -9 -f "$JAR_NAME"
+        sudo pkill -9 -f "$JAR_NAME"
         sleep 2
     fi
 fi
