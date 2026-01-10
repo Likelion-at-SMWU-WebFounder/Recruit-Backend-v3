@@ -18,7 +18,7 @@ public class RecruitmentEventListener {
     private final MailService mailService;
 
     // 1. 구글 독스 업로드
-    @Async
+    @Async("taskExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleRecruitmentAppliedEvent(RecruitmentAppliedEvent event){
         try {
@@ -37,7 +37,7 @@ public class RecruitmentEventListener {
     }
 
     // 2. 메일 전송
-    @Async
+    @Async("taskExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleMailSend(RecruitmentAppliedEvent event) {
         try {
