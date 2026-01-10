@@ -45,14 +45,7 @@ public class RecruitController {
         if ("fe".equalsIgnoreCase(track) || "pm".equalsIgnoreCase(track) || "be".equalsIgnoreCase(track)) {
             try {
                 // 서류 등록
-                RecruitmentResponse recruitResponse = recruitService.registerRecruitment(request, programmersFile);
-
-                // DB PK (지원번호)
-                Long applicationId = recruitResponse.getId();
-
-                // Google Docs 업로드
-                recruitService.uploadToGoogleDocs(documentId, applicationId, request);
-                log.info("Google Docs에 서류가 정상적으로 업로드됨: {}", documentId);
+                RecruitmentResponse recruitResponse = recruitService.registerRecruitment(request, programmersFile, documentId);
 
                 return new BaseResponse<>(recruitResponse);
             } catch (DuplicateStudentIdException e) {

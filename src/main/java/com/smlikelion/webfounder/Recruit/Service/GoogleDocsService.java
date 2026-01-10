@@ -3,8 +3,11 @@ package com.smlikelion.webfounder.Recruit.Service;
 import com.google.api.services.docs.v1.Docs;
 import com.google.api.services.docs.v1.model.*;
 import com.smlikelion.webfounder.Recruit.Dto.Request.RecruitmentRequest;
+import com.smlikelion.webfounder.Recruit.Entity.Track;
 import com.smlikelion.webfounder.Recruit.Service.docs.DocsRequests;
 import com.smlikelion.webfounder.Recruit.Service.docs.DocsTableWriter;
+import com.smlikelion.webfounder.manage.entity.Question;
+import com.smlikelion.webfounder.manage.repository.QuestionRepository;
 import lombok.RequiredArgsConstructor;
 import  lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +26,7 @@ public class GoogleDocsService {
     private final Docs docsService;
     private final DocsRequests docsRequests;
     private final DocsTableWriter docsTableWriter;
+    private final QuestionRepository questionRepository;
 
     @Value("${google.docs.document-id}")
     private String documentId;
@@ -123,24 +127,15 @@ public class GoogleDocsService {
     private void addEssaySection(List<Request> batch, RecruitmentRequest request) throws IOException {
         batch.add(docsRequests.insertAtEnd("\n[자소서 문항]\n"));
 
-        List<String> questions = List.of(
-                "1. 멋사 선택한 이유 및 지원 동기 (600자)",
-                "2-2. 파트 지원 이유, 해당 파트로 어떻게 성장할 것인지 (600자)",
-                "3. 웹 서비스 아이디어 (600자)",
-                "4. 지금까지 했던 일 중 가장 꾸준하게 한 일 (600자)",
-                "5. 열정을 다해 도전 해본 경험 (600자)",
-                "6. 타인과 협업 또는 의사소통하며 성공/어려움 극복 경험과 배운 점 (600자)",
-                "7. 기술 블로그 or GitHub or 포트폴리오 링크"
-        );
-
+        List<Question> questions = questionRepository.findAllByYearAndTrack(2026L, Track.COMMON);
         List<String> answers = request.getAnswerList().toAnswerList();
 
         for (int i = 0; i < questions.size(); i++) {
-            String q = questions.get(i);
+            Question q = questions.get(i);
             String a = docsRequests.safe(answers.get(i));
 
             int qStart = getDocumentEndIndex() - 1;
-            String qText = "\n" + q + "  " + a.length() + "자\n";
+            String qText = "\n" + q.getNumber() + ". "  + q.getContent() + " " + a.length() + "자\n";
             batch.add(docsRequests.insertAtEnd(qText));
             int qEnd = qStart + qText.length();
             batch.add(docsRequests.applyTextStyle(qStart, qEnd, true, 12.0, null, null, null));
@@ -173,7 +168,7 @@ public class GoogleDocsService {
                     documentId, new BatchUpdateDocumentRequest().setRequests(requests)
             ).execute();
         } catch (GoogleJsonResponseException e) {
-            log.error("Google Docs API 오류 발생! status={}, message={}", e.getStatusCode(), e.getDetails().getMessage());
+            log.error("Google Docs API 오류 발생 status={}, message={}", e.getStatusCode(), e.getDetails().getMessage());
             if (e.getStatusCode() == 400) {
                 log.error("잘못된 인덱스 혹은 요청 형식이 포함되었습니다. 요청 내용을 확인하세요.");
             }
