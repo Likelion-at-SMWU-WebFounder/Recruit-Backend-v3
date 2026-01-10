@@ -71,6 +71,7 @@ fi
 # Spring Boot 애플리케이션 시작
 nohup java -jar \
     -Dspring.profiles.active=prod \
+    -Dspring.config.location=file:/home/ubuntu/application.yml \
     -Xms512m \
     -Xmx1024m \
     -XX:+UseG1GC \
