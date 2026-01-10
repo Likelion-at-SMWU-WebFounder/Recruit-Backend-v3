@@ -42,6 +42,7 @@ jobs:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_PRIVATE_KEY }}
+        debug: true
         script: |
           # 애플리케이션 디렉토리 생성
           sudo mkdir -p /home/ubuntu/app
