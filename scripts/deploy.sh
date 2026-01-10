@@ -26,7 +26,7 @@ fi
 # 이전 JAR 파일 백업
 echo "기존 파일 백업 중..."
 if [ -f "$APP_PATH/$JAR_NAME" ]; then
-    mv "$APP_PATH/$JAR_NAME" "$APP_PATH/${JAR_NAME}.bak.$(date +%Y%m%d_%H%M%S)"
+    cp "$APP_PATH/$JAR_NAME" "$APP_PATH/${JAR_NAME}.bak.$(date +%Y%m%d_%H%M%S)"
     echo "기존 파일을 백업했습니다"
 fi
 
