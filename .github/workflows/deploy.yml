@@ -42,11 +42,15 @@ jobs:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_PRIVATE_KEY }}
-        debug: true
+        timeout: 60s
+        command_timeout: 30s
         script: |
           # 기존 애플리케이션 안전하게 종료
-          sudo pkill -f "webfounder.*jar" || true
-          sleep 10
+          echo "Stopping application..."
+          sudo pkill -f "webfounder.*jar" || echo "No process found"
+          echo "Waiting..."
+          sleep 5
+          echo "Done"
           
     - name: Copy JAR to EC2
       uses: appleboy/scp-action@v0.1.7
