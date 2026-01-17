@@ -9,43 +9,11 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
-    - name: Set up JDK 11
-      uses: actions/setup-java@v4
-      with:
-        java-version: '11'
-        distribution: 'temurin'
-        
-    - name: Cache Gradle packages
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
-          
-    - name: Make gradlew executable
-      run: chmod +x ./gradlew
-      
-    - name: Build with Gradle
-      run: ./gradlew clean build -x test
-      
-    - name: Copy JAR to EC2
-      uses: appleboy/scp-action@v0.1.7
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USERNAME }}
-        key: ${{ secrets.EC2_PRIVATE_KEY }}
-        source: "build/libs/webfounder-0.0.1-SNAPSHOT.jar"
-        target: "/home/ubuntu/app/"
-        strip_components: 2
-        
+
     - name: Copy deploy script to EC2
       uses: appleboy/scp-action@v0.1.7
       with:
@@ -55,17 +23,18 @@ jobs:
         source: "scripts/deploy.sh"
         target: "/home/ubuntu/"
         strip_components: 1
-        
-    - name: Start application
+
+    - name: Trigger deployment
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_PRIVATE_KEY }}
         script: |
+          export GITHUB_TOKEN="${{ secrets.GH_TOKEN }}"
           chmod +x /home/ubuntu/deploy.sh
           /home/ubuntu/deploy.sh
-          
+
     - name: Health check
       uses: appleboy/ssh-action@v1.0.3
       with:
