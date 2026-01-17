@@ -39,7 +39,7 @@ public class DocsTableWriter {
                 String.valueOf(req.getStudentInfo().getCompletedSem()),
                 req.getStudentInfo().getSchoolStatus(),
                 req.getStudentInfo().getGraduatedYear(),
-                (req.getStudentInfo().getProgrammers() == null || req.getStudentInfo().getProgrammers().isBlank()) ? "X" : "O"
+                (req.getStudentInfo().getProgrammers().equals("NOT_ENROLLED")) ? "X" : "O"
         );
 
         List<Request> requests = new ArrayList<>();
