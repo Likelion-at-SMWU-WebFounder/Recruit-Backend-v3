@@ -48,18 +48,18 @@ jobs:
           cd /home/ubuntu/app
           
           # 기존 컨테이너 정리
-          docker compose down || true
+          docker-compose down || true
           docker system prune -f
           
           # 로그 디렉터리 생성
           mkdir -p logs
           
           # 새 컨테이너 빌드 및 시작
-          docker compose up --build -d
+          docker-compose up --build -d
           
           # 컨테이너 상태 확인
           sleep 30
-          docker compose ps
+          docker-compose ps
 
     - name: Health check
       uses: appleboy/ssh-action@v1.0.3
@@ -72,11 +72,11 @@ jobs:
           
           # 컨테이너 상태 확인
           cd /home/ubuntu/app
-          if docker compose ps | grep "webfounder-app" | grep "Up"; then
+          if docker-compose ps | grep "webfounder-app" | grep "Up"; then
             echo "✅ Container is running"
           else
             echo "❌ Container is not running"
-            docker compose logs
+            docker-compose logs
             exit 1
           fi
           
@@ -91,5 +91,5 @@ jobs:
           done
           
           echo "❌ Health check failed after 10 attempts"
-          docker compose logs
+          docker-compose logs
           exit 1
