@@ -48,6 +48,7 @@ public class SpringSecurityConfig {
                     authorize
                             .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                             .antMatchers(HttpMethod.OPTIONS, "/**").permitAll() // CORS
+                            .antMatchers("/actuator/**").permitAll() // Actuator 허용
                             .anyRequest().authenticated()
             )
             .addFilterAfter(new JwtAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class)
