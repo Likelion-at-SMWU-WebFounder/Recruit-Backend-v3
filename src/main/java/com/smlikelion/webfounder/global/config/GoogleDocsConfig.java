@@ -23,7 +23,7 @@ public class GoogleDocsConfig {
     @Bean
     public Docs docsService() throws IOException {
         GoogleCredentials credentials = GoogleCredentials.fromStream(
-                        new ClassPathResource("credentials.json").getInputStream()
+                        new java.io.FileInputStream("/app/credentials.json")
                 )
                 .createScoped(Collections.singleton(DocsScopes.DOCUMENTS));
 
