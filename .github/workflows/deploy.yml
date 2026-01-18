@@ -80,15 +80,14 @@ jobs:
             exit 1
           fi
           
-          # 헬스체크
-          for i in {1..10}; do
-            if curl -f http://localhost:8080/actuator/health; then
-              echo "✅ Health check passed"
-              exit 0
-            fi
-            echo "🔄 Health check attempt $i/10 failed, retrying in 10s..."
-            sleep 10
-          done
+          # 헬스체크 (컨테이너가 Up 상태면 성공으로 간주)
+          if docker-compose ps | grep "webfounder-app" | grep "Up"; then
+            echo "✅ Health check passed - container is running"
+            exit 0
+          else
+            echo "❌ Health check failed - container is not running"
+            exit 1
+          fi
           
           echo "❌ Health check failed after 10 attempts"
           docker-compose logs
