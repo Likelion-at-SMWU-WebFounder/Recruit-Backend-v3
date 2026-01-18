@@ -1,0 +1,16 @@
+# .dockerignore
+.git
+.github
+.gradle
+gradle
+gradlew*
+*.md
+README.md
+src/main
+src/test
+.gitignore
+.env
+logs
+scripts
+application.yml
+deploy.sh
