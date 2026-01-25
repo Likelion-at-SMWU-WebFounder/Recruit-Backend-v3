@@ -39,7 +39,7 @@ public class StudentInfoRequest {
     private String Portfolio;
 
     @NotNull(message = "재/휴학 여부를 선택해주세요.")
-    private String schoolStatus; // ENROLLED, ON_LEAVE
+    private String schoolStatus; // ENROLLED, ON_LEAVE, DEFERRED_GRADUATION
 
     @NotNull(message = "프로그래머스 수강 여부를 선택해주세요.")
     private String programmers; //NOT_ENROLLED , ENROLLED
