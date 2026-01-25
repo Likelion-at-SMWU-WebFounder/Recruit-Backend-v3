@@ -4,3 +4,5 @@ build/resources/main/credentials.json
 src/main/resources/application.yml
 /build/
 /.gradle/.env
+/.gradle
+/.idea
