@@ -5,10 +5,10 @@
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="gradleJvm" value="18" />
+        <option name="gradleJvm" value="corretto-11" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/../../웹파운더즈/Recruit-Backend-v3" />
           </set>
         </option>
       </GradleProjectSettings>
