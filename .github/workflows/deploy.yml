@@ -69,28 +69,28 @@ jobs:
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_PRIVATE_KEY }}
         script: |
-          sleep 60
-          
-          # 컨테이너 상태 확인
           cd /home/ubuntu/app
-          if docker-compose ps | grep "webfounder-app" | grep "Up"; then
-            echo "✅ Container is running"
-          else
-            echo "❌ Container is not running"
-            docker-compose logs
-            exit 1
-          fi
           
-          # 헬스체크 (컨테이너가 Up 상태면 성공으로 간주)
-          if docker-compose ps | grep "webfounder-app" | grep "Up"; then
-            echo "✅ Health check passed - container is running"
-            exit 0
-          else
-            echo "❌ Health check failed - container is not running"
-            exit 1
-          fi
+          # 최대 10번 시도 (총 100초 대기)
+          for i in {1..10}; do
+            echo "Health check attempt $i/10..."
 
+            # 컨테이너 상태만 확인
+            if docker-compose ps | grep "webfounder-app" | grep -q "Up"; then
+              echo "✅ Container is running"
+              
+              # 포트가 열려있는지 확인
+              if nc -z localhost 8080 2>/dev/null; then
+                echo "✅ Port 8080 is open - deployment successful"
+                exit 0
+              fi
+            fi
+            
+            echo "Waiting 10 seconds..."
+            sleep 10
+          done
           
           echo "❌ Health check failed after 10 attempts"
-          docker-compose logs
+          echo "=== Container Logs ==="
+          docker-compose logs --tail=100
           exit 1
