@@ -3,6 +3,7 @@ package com.smlikelion.webfounder.Recruit.Service.docs;
 import com.google.api.services.docs.v1.Docs;
 import com.google.api.services.docs.v1.model.*;
 import com.smlikelion.webfounder.Recruit.Dto.Request.RecruitmentRequest;
+import com.smlikelion.webfounder.Recruit.Entity.SchoolStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -37,7 +38,7 @@ public class DocsTableWriter {
                 req.getStudentInfo().getEmail(),
                 req.getStudentInfo().getMajor(),
                 String.valueOf(req.getStudentInfo().getCompletedSem()),
-                req.getStudentInfo().getSchoolStatus(),
+                SchoolStatus.valueOf(req.getStudentInfo().getSchoolStatus()).getLabel(),
                 req.getStudentInfo().getGraduatedYear(),
                 (req.getStudentInfo().getProgrammers().equals("NOT_ENROLLED")) ? "X" : "O"
         );
