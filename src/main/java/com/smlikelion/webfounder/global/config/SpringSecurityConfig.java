@@ -24,8 +24,12 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.io.PrintWriter;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -39,28 +43,60 @@ public class SpringSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-            .httpBasic().disable()
-            .csrf().disable() //CSRF 보호 비활성화
-            .sessionManagement()
+                .httpBasic().disable()
+                .csrf().disable() //CSRF 보호 비활성화
+                .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
-            .authorizeRequests(authorize ->
-                    authorize
-                            .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                            .antMatchers(HttpMethod.OPTIONS, "/**").permitAll() // CORS
-                            .antMatchers("/actuator/**").permitAll() // Actuator 허용
-                            .anyRequest().authenticated()
-            )
-            .addFilterAfter(new JwtAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(exceptionFilter, JwtAuthenticationFilter.class)
-            .exceptionHandling((exceptionConfig) -> {
-                exceptionConfig
-                        .authenticationEntryPoint(unauthorizedEntryPoint)
-                        .accessDeniedHandler(accessDeniedHandler);
-            })
-            .cors();
+                .and()
+                .authorizeRequests(authorize ->
+                        authorize
+                                .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+                                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll() // CORS
+                                .antMatchers("/actuator/**").permitAll() // Actuator 허용
+                                .anyRequest().authenticated()
+                )
+                .addFilterAfter(new JwtAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(exceptionFilter, JwtAuthenticationFilter.class)
+                .exceptionHandling((exceptionConfig) -> {
+                    exceptionConfig
+                            .authenticationEntryPoint(unauthorizedEntryPoint)
+                            .accessDeniedHandler(accessDeniedHandler);
+                })
+                .cors();
 
         return httpSecurity.build();
+    }
+
+
+    // 프론트 CORS 설정 Bean
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+
+        // 허용할 프론트 Origin
+        config.setAllowedOrigins(List.of(
+                "http://localhost:3000",
+                "http://127.0.0.1:3000",
+                "https://likelion-smwu.com",
+                "https://admin-client-v3-seven.vercel.app"
+
+        ));
+
+        // 허용 메서드
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+
+        // 허용 헤더 (Authorization 포함)
+        config.setAllowedHeaders(List.of("*"));
+
+        // 프론트에서 읽을 수 있게 노출할 헤더(필요시)
+        config.setExposedHeaders(List.of("Authorization"));
+
+        // 쿠키/세션 기반이면 true 필요, 헤더 JWT여도 프론트가 withCredentials 쓰면 true 필요
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 
     private final AuthenticationEntryPoint unauthorizedEntryPoint =
