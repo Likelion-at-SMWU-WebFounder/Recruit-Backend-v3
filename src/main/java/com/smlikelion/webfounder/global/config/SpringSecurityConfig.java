@@ -67,39 +67,6 @@ public class SpringSecurityConfig {
         return httpSecurity.build();
     }
 
-
-    // 프론트 CORS 설정 Bean
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-
-        // 허용할 프론트 Origin
-        config.setAllowedOrigins(List.of(
-                "http://localhost:3000",
-                "http://127.0.0.1:3000",
-                "https://localhost:5173",
-                "https://likelion-smwu.com",
-                "https://admin-client-v3-seven.vercel.app"
-
-        ));
-
-        // 허용 메서드
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-
-        // 허용 헤더 (Authorization 포함)
-        config.setAllowedHeaders(List.of("*"));
-
-        // 프론트에서 읽을 수 있게 노출할 헤더(필요시)
-        config.setExposedHeaders(List.of("Authorization"));
-
-        // 쿠키/세션 기반이면 true 필요, 헤더 JWT여도 프론트가 withCredentials 쓰면 true 필요
-        config.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
-    }
-
     private final AuthenticationEntryPoint unauthorizedEntryPoint =
             (request, response, authException) -> {
                 BaseResponse fail = new BaseResponse(ErrorCode.UNAUTHORIZED_ERROR);
