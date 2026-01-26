@@ -38,6 +38,7 @@ public class WebConfig implements WebMvcConfigurer {
                         "http://localhost:3000",
                         "http://127.0.0.1:3000",
                         "https://localhost:5173",
+                        "http://localhost:5173",
                         "https://likelion-smwu.com",
                         "https://admin-client-v3-seven.vercel.app"
                 )  // 허용할 클라이언트 도메인
