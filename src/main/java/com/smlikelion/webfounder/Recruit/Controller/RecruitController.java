@@ -6,12 +6,14 @@ import com.smlikelion.webfounder.Recruit.Service.RecruitService;
 import com.smlikelion.webfounder.Recruit.exception.DuplicateStudentIdException;
 import com.smlikelion.webfounder.global.dto.response.BaseResponse;
 import com.smlikelion.webfounder.global.dto.response.ErrorCode;
+import org.springframework.http.HttpStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
@@ -34,7 +36,7 @@ public class RecruitController {
 
     @Operation(summary = "트랙별 서류 작성하기 및 Google Docs 자동 업로드")
     @PostMapping(value = "/docs", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public BaseResponse<RecruitmentResponse> submitRecruitment(
+    public ResponseEntity<BaseResponse<RecruitmentResponse>> submitRecruitment(
             @RequestParam("track") String track,
             @RequestPart("request") @Valid RecruitmentRequest request,
             BindingResult bindingResult,
@@ -47,17 +49,19 @@ public class RecruitController {
                 // 서류 등록
                 RecruitmentResponse recruitResponse = recruitService.registerRecruitment(request, programmersFile, documentId);
 
-                return new BaseResponse<>(recruitResponse);
+                return ResponseEntity.ok(new BaseResponse<>(recruitResponse));
+
             } catch (DuplicateStudentIdException e) {
-                return new BaseResponse<>(ErrorCode.NOT_FOUND.getCode(), ErrorCode.DUPLICATE_STUDENT_ID_ERROR.getMessage(), null);
+                return ResponseEntity
+                        .status(HttpStatus.CONFLICT).body(new BaseResponse<>(ErrorCode.DUPLICATE_STUDENT_ID_ERROR));
             } catch (Exception e) {
                 log.error("Google Docs 업로드 중 오류 발생", e);
-                return new BaseResponse<>(ErrorCode.INTERNAL_SERVER_ERROR.getCode(), "Google Docs update failed", null);
+                return ResponseEntity .status(HttpStatus.INTERNAL_SERVER_ERROR) .body(new BaseResponse<>(ErrorCode.INTERNAL_SERVER_ERROR));
             }
         } else {
             // 유효하지 않은 트랙 값 처리
             String errorMessage = "Invalid track value. Please provide a valid track (fe, pm, be).";
-            return new BaseResponse<>(ErrorCode.NOT_FOUND.getCode(), errorMessage, null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new BaseResponse<>(ErrorCode.UNSUPPORTED_TRACK_ERROR));
         }
     }
 
