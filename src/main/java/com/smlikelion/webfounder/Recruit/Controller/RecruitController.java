@@ -55,14 +55,18 @@ public class RecruitController {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(new BaseResponse<>(ErrorCode.DUPLICATE_STUDENT_ID_ERROR));
             } catch (Exception e) {
                 log.error("Google Docs 업로드 중 오류 발생", e);
-                return ResponseEntity .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(new BaseResponse<>(ErrorCode.INTERNAL_SERVER_ERROR.getCode(),"Google docs update failed", null));
+
+                BaseResponse<RecruitmentResponse> response = new BaseResponse<>(ErrorCode.INTERNAL_SERVER_ERROR);
+                response.setMessage("Google docs update failed");
+
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
             }
         } else {
             // 유효하지 않은 트랙 값 처리
-            String errorMessage = "Invalid track value. Please provide a valid track (fe, pm, be).";
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new BaseResponse<>(ErrorCode.UNSUPPORTED_TRACK_ERROR.getCode(), errorMessage, null));
+            BaseResponse<RecruitmentResponse> response = new BaseResponse<>(ErrorCode.UNSUPPORTED_TRACK_ERROR);
+            response.setMessage("Invalid track value. Please provide a valid track (fe, pm, be).");
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
 
