@@ -27,9 +27,11 @@ public class AnswerListRequest {
     private String A6;
     @NotBlank(message = "답변을 입력해주세요.")
     private String A7;
+    @NotBlank(message = "답변을 입력해주세요.")
+    private String A8;
 
     public List<String> toAnswerList() {
-        return Arrays.asList(A1, A2, A3, A4, A5, A6, A7);
+        return Arrays.asList(A1, A2, A3, A4, A5, A6, A7, A8);
     }
 
     // ✅ 추가: Map<String, String> 형태로 변환
@@ -42,6 +44,7 @@ public class AnswerListRequest {
         answerMap.put("문항 5", A5);
         answerMap.put("문항 6", A6);
         answerMap.put("문항 7", A7);
+        answerMap.put("문항 8", A8);
         return answerMap;
     }
 }
