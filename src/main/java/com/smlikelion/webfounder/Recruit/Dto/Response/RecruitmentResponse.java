@@ -41,6 +41,7 @@ public class RecruitmentResponse {
                 this.answerList.add(answerListResponse.getA5());
                 this.answerList.add(answerListResponse.getA6());
                 this.answerList.add(answerListResponse.getA7());
+                this.answerList.add(answerListResponse.getA8());
             }
 
             return this;

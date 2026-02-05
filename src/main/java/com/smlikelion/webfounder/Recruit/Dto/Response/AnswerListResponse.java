@@ -17,6 +17,7 @@ public class AnswerListResponse {
     private String A5;
     private String A6;
     private String A7;
+    private String A8;
 
     // ✅ AnswerListRequest를 AnswerListResponse로 변환하는 메서드 추가
     public static AnswerListResponse fromRequest(AnswerListRequest request) {
@@ -28,6 +29,7 @@ public class AnswerListResponse {
                 .A5(request.getA5())
                 .A6(request.getA6())
                 .A7(request.getA7())
+                .A8(request.getA8())
                 .build();
     }
 }

@@ -147,6 +147,7 @@ public class Joiner extends DateEntity {
                 .A5(this.answerList.get(4))
                 .A6(this.answerList.get(5))
                 .A7(this.answerList.get(6))
+                .A8(this.answerList.get(7))
                 // 나머지 필드에 대한 추가 작업
                 .build();
     }
