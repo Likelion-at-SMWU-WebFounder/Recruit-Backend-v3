@@ -49,6 +49,7 @@ public enum ErrorCode {
     MISMATCHED_TRACK_ERROR(false, HttpStatus.BAD_REQUEST.value(), "해당 트랙과 일치하지 않습니다."),
     INVALID_INTERVIEW_PASS_ERROR(false,HttpStatus.BAD_REQUEST.value(),"서류 불합격자가 포함되어 있습니다."),
     DELETE_ENTITY_ERROR(false, HttpStatus.BAD_REQUEST.value(), "서류 전체 삭제 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요"),
+    LATE_APPLY(false, HttpStatus.BAD_REQUEST.value(), "지원 마감 시한이 지났습니다."),
 
     //result
     MISSING_FIELD_ERROR(false, HttpStatus.BAD_REQUEST.value(), "입력란을 비워서 요청하는 경우입니다."),
