@@ -4,6 +4,7 @@ import com.smlikelion.webfounder.Recruit.Dto.Request.RecruitmentRequest;
 import com.smlikelion.webfounder.Recruit.Dto.Response.RecruitmentResponse;
 import com.smlikelion.webfounder.Recruit.Service.RecruitService;
 import com.smlikelion.webfounder.Recruit.exception.DuplicateStudentIdException;
+import com.smlikelion.webfounder.Recruit.exception.LateApplyException;
 import com.smlikelion.webfounder.global.dto.response.BaseResponse;
 import com.smlikelion.webfounder.global.dto.response.ErrorCode;
 import org.springframework.http.HttpStatus;
@@ -53,6 +54,8 @@ public class RecruitController {
 
             } catch (DuplicateStudentIdException e) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(new BaseResponse<>(ErrorCode.DUPLICATE_STUDENT_ID_ERROR));
+            } catch (LateApplyException e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new BaseResponse<>(ErrorCode.LATE_APPLY));
             } catch (Exception e) {
                 log.error("Google Docs 업로드 중 오류 발생", e);
 
