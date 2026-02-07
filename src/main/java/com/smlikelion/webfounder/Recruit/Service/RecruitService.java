@@ -7,6 +7,7 @@ import com.smlikelion.webfounder.Recruit.Entity.*;
 import com.smlikelion.webfounder.Recruit.Repository.JoinerRepository;
 import com.smlikelion.webfounder.Recruit.event.RecruitmentAppliedEvent;
 import com.smlikelion.webfounder.Recruit.exception.DuplicateStudentIdException;
+import com.smlikelion.webfounder.Recruit.exception.LateApplyException;
 import com.smlikelion.webfounder.manage.entity.Candidate;
 import com.smlikelion.webfounder.manage.repository.CandidateRepository;
 import lombok.AllArgsConstructor;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.time.LocalDateTime;
 
 @Slf4j
 @Service
@@ -39,9 +41,14 @@ public class RecruitService {
     public RecruitmentResponse registerRecruitment(RecruitmentRequest request, MultipartFile programmersFile,
                                                    String documentId) {
 
-        String studentId = request.getStudentInfo().getStudentId();
+        // 지원 시간 마감 확인
+        LocalDateTime deadline = LocalDateTime.of(2026, 2, 18, 18, 00);
+        if (LocalDateTime.now().isAfter(deadline)) {
+            throw new LateApplyException("지원 마감 시간이 지났습니다.");
+        }
 
         // 동일한 학번을 가진 지원자가 이미 존재하는지 확인
+        String studentId = request.getStudentInfo().getStudentId();
         if (joinerRepository.existsByStudentId(studentId)) {
             throw new DuplicateStudentIdException("동일한 학번으로 중복된 지원서가 이미 제출되었습니다.");
         }
