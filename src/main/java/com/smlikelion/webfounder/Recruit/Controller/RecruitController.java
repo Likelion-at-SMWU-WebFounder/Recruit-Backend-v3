@@ -2,6 +2,7 @@ package com.smlikelion.webfounder.Recruit.Controller;
 
 import com.smlikelion.webfounder.Recruit.Dto.Request.RecruitmentRequest;
 import com.smlikelion.webfounder.Recruit.Dto.Response.RecruitmentResponse;
+import com.smlikelion.webfounder.Recruit.Dto.Response.TimeResponse;
 import com.smlikelion.webfounder.Recruit.Service.RecruitService;
 import com.smlikelion.webfounder.Recruit.exception.DuplicateStudentIdException;
 import com.smlikelion.webfounder.Recruit.exception.LateApplyException;
@@ -21,6 +22,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @RestController
@@ -115,5 +119,11 @@ public class RecruitController {
         } catch (Exception e) {
             return new BaseResponse<>(ErrorCode.INTERNAL_SERVER_ERROR.getCode(), "Google Docs update failed", null);
         }
+    }
+
+    @GetMapping("/time")
+    public ResponseEntity<TimeResponse> getServerTime() {
+        OffsetDateTime now = OffsetDateTime.now(ZoneId.of("Asia/Seoul"));
+        return ResponseEntity.ok(new TimeResponse(now));
     }
 }
