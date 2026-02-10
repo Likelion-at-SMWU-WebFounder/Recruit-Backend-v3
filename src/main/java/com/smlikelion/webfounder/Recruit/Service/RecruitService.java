@@ -70,7 +70,7 @@ public class RecruitService {
         joiner = joinerRepository.save(joiner);
 
         // cadidate entity 생성 시 서류합 란을 reject로 초기 설정
-        Candidate candidate = new Candidate(joiner, "REJECT", "REJECT");
+        Candidate candidate = new Candidate(joiner, "REJECT", "INTERVIEW_REJECT");
         candidateRepository.save(candidate);
 
         // 지원 완료 시, Google Docs에 업로드 + 메일 전송
