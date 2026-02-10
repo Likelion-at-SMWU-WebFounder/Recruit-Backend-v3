@@ -1,5 +1,5 @@
 package com.smlikelion.webfounder.manage.entity;
 
 public enum Interview {
-    REJECT, PASS
+    INTERVIEW_REJECT, PASS, DOCS_REJECT
 }

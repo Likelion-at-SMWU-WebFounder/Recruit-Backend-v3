@@ -51,20 +51,30 @@ public class ResultService {
     public BaseResponse<ResultInterviewResponse> getInterviewResult(ResultInterviewRequest request) {
         Joiner joiner = getJoiner(request);
 
-        Candidate candidate = candidateRepository.findByJoinerAndInterview(joiner, Interview.PASS);
+        Candidate candidate = candidateRepository.findByJoiner(joiner)
+                .orElse(null);
+
+        Interview interviewResult;
+
         if (candidate == null) {
-            //불합격자
-            ResultInterviewResponse resultResponse = ResultInterviewResponse.builder()
-                    .name(joiner.getName())
-                    .interview(Interview.REJECT)
-                    .track(joiner.getTrack())
-                    .build();
-            return new BaseResponse<>(HttpStatus.OK.value(), "요청에 성공했습니다.", resultResponse);
+            throw new CandidateNotFoundException("존재하지 않는 회원 정보입니다.");
         }
-        // 합격자의 경우
+        else if (candidate.getDocs() == Docs.REJECT) {
+            // 서류 탈락
+            interviewResult = Interview.DOCS_REJECT;
+        }
+        else if (candidate.getInterview() != Interview.PASS) {
+            // 면접 탈락
+            interviewResult = Interview.INTERVIEW_REJECT;
+        }
+        else {
+            // 면접 합격
+            interviewResult = Interview.PASS;
+        }
+
         ResultInterviewResponse resultResponse = ResultInterviewResponse.builder()
                 .name(joiner.getName())
-                .interview(candidate.getInterview())
+                .interview(interviewResult)
                 .track(joiner.getTrack())
                 .build();
 
