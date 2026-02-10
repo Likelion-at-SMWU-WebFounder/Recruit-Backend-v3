@@ -314,7 +314,7 @@ public class ManageService {
             Candidate candidate = candidateRepository.findByJoiner(joiner).orElseThrow(
                     () -> new NotFoundCandidateException(joinerId+"번 candidate는 존재하지 않습니다")
             );
-            candidate.setInterview(Interview.REJECT);
+            candidate.setInterview(Interview.INTERVIEW_REJECT);
             candidateRepository.save(candidate);
             failedJoinerIds.add(joinerId);
         }
