@@ -46,7 +46,7 @@ public class RecruitService {
                                                    String documentId) {
 
         // 지원 시간 마감 확인
-        LocalDateTime deadline = LocalDateTime.of(2026, 3, 18, 18, 00);
+        LocalDateTime deadline = LocalDateTime.of(2026, 2, 18, 18, 00);
         if (LocalDateTime.now().isAfter(deadline)) {
             throw new LateApplyException("지원 마감 시간이 지났습니다.");
         }
