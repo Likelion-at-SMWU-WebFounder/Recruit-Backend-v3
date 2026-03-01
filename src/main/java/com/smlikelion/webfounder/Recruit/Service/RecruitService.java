@@ -22,6 +22,8 @@ import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 
@@ -37,12 +39,14 @@ public class RecruitService {
     private final AwsS3Service awsS3Service;
     private final ApplicationEventPublisher eventPublisher;
 
+    private final ReentrantLock googleDocsLock = new ReentrantLock(true);
+
     @Transactional
     public RecruitmentResponse registerRecruitment(RecruitmentRequest request, MultipartFile programmersFile,
                                                    String documentId) {
 
         // 지원 시간 마감 확인
-        LocalDateTime deadline = LocalDateTime.of(2026, 2, 18, 18, 00);
+        LocalDateTime deadline = LocalDateTime.of(2026, 3, 18, 18, 00);
         if (LocalDateTime.now().isAfter(deadline)) {
             throw new LateApplyException("지원 마감 시간이 지났습니다.");
         }
@@ -128,12 +132,26 @@ public class RecruitService {
             throw new IllegalArgumentException("필수 요청 데이터가 누락되었습니다.");
         }
 
+        boolean acquired;
+        try {
+            acquired = googleDocsLock.tryLock(70, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("락 대기 중 인터럽트 발생", e);
+        }
+
+        if(!acquired){
+            throw new RuntimeException("Google Docs 업로드 타임아웃 - applicationId: " + applicationId);
+        }
+
         try {
 //            googleDocsService.uploadRecruitmentToGoogleDocs(documentId, request);
             googleDocsService.appendOneApplication(documentId, applicationId, request);
             return documentId;
         } catch (IOException e) {
             throw new RuntimeException("Google Docs 업로드 실패", e);
+        } finally {
+            googleDocsLock.unlock();
         }
     }
 
